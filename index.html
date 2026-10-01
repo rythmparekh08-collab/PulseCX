@@ -1,0 +1,2514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseCX • Enterprise Logistics & Real-Time Shipment Tracking</title>
+  
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            dark: {
+              canvas: '#050608',
+              surface: '#080A0D',
+              surfaceElevated: '#101318',
+              card: '#101318',
+              cardElevated: '#14181D',
+              border: '#242A31',
+              borderSubtle: '#1C2025',
+              borderActive: '#2A3037',
+              textMain: '#F5F7FA',
+              textSecondary: '#8B939C',
+              textMuted: '#69717B',
+            }
+          },
+          boxShadow: {
+            'subtle': '0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)',
+            'card': '0 4px 12px rgba(0,0,0,0.4)',
+            'modal': '0 20px 40px rgba(0,0,0,0.6)',
+            'dropdown': '0 10px 25px rgba(0,0,0,0.5)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & Babel Standalone -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <style>
+    :root {
+      --bg-canvas: #050608;
+      --bg-surface: #080A0D;
+      --bg-card: #101318;
+      --bg-card-elevated: #14181D;
+      --border-subtle: #1C2025;
+      --border-card: #242A31;
+      --border-active: #2A3037;
+      --text-main: #F5F7FA;
+      --text-secondary: #8B939C;
+      --text-muted: #69717B;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: #050608;
+    }
+
+    body {
+      background-color: #050608;
+      color: #F5F7FA;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* Minimal Dark Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080A0D;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #242A31;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #38424D;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* ========================================================================= */
+    /* ATMOSPHERIC GRADIENT WAVE KEYFRAMES (NATIVE RECREATION OF VIDEO) */
+    /* ========================================================================= */
+    @keyframes waveShift1 {
+      0% { transform: translate3d(-3%, 0, 0) scaleY(1); }
+      50% { transform: translate3d(3%, -16px, 0) scaleY(1.08); }
+      100% { transform: translate3d(-3%, 0, 0) scaleY(1); }
+    }
+
+    @keyframes waveShift2 {
+      0% { transform: translate3d(4%, 0, 0) scaleY(1.05); }
+      50% { transform: translate3d(-3%, -20px, 0) scaleY(0.94); }
+      100% { transform: translate3d(4%, 0, 0) scaleY(1.05); }
+    }
+
+    @keyframes waveShift3 {
+      0% { transform: translate3d(-2%, 0, 0) scale(1); }
+      50% { transform: translate3d(4%, -12px, 0) scale(1.06); }
+      100% { transform: translate3d(-2%, 0, 0) scale(1); }
+    }
+
+    .bg-wave-layer-1 {
+      animation: waveShift1 26s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+      will-change: transform;
+    }
+    .bg-wave-layer-2 {
+      animation: waveShift2 32s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+      will-change: transform;
+    }
+    .bg-wave-layer-3 {
+      animation: waveShift3 22s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-wave-layer-1,
+      .bg-wave-layer-2,
+      .bg-wave-layer-3 {
+        animation: none !important;
+      }
+    }
+
+    /* Dark SaaS Utilities */
+    .saas-card {
+      background: #101318;
+      border: 1px solid #242A31;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .saas-card:hover {
+      border-color: #38424D;
+    }
+    
+    .saas-input {
+      background: #14181D;
+      border: 1px solid #242A31;
+      border-radius: 8px;
+      color: #F5F7FA;
+      transition: all 0.15s ease;
+    }
+    .saas-input:focus {
+      outline: none;
+      border-color: #B6C2CC;
+      box-shadow: 0 0 0 2px rgba(182, 194, 204, 0.12);
+    }
+
+    .saas-btn-primary {
+      background: #F1F3F5;
+      color: #090B0D;
+      border: 1px solid #F1F3F5;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .saas-btn-primary:hover {
+      background: #FFFFFF;
+      border-color: #FFFFFF;
+    }
+
+    .saas-btn-secondary {
+      background: #14181D;
+      color: #E8EBEF;
+      border: 1px solid #242A31;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .saas-btn-secondary:hover {
+      background: #171B20;
+      border-color: #38424D;
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body class="bg-[#050608] text-[#F5F7FA] antialiased selection:bg-[#F1F3F5] selection:text-[#090B0D]">
+  <div id="root">
+    <div style="min-height: 100vh; background: #050608; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #F5F7FA; font-family: 'Inter', sans-serif;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #101318; border: 1px solid #242A31; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #F5F7FA; box-shadow: 0 4px 12px rgba(0,0,0,0.5); margin-bottom: 16px;">
+        P
+      </div>
+      <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.3px; color: #F5F7FA;">PulseCX</div>
+      <div style="font-size: 13px; color: #8B939C; margin-top: 4px;">Loading Enterprise Logistics Workspace...</div>
+    </div>
+  </div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef } = React;
+
+    // =========================================================================
+    // PROFESSIONAL MONOCHROME SVG ICONS (NO CHILDISH EMOJIS)
+    // =========================================================================
+    const Icons = {
+      Package: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m7.5 4.27 9 5.15" /><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+          <path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" />
+        </svg>
+      ),
+      MapPin: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      ),
+      Navigation: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="3 11 22 2 13 21 11 13 3 11" />
+        </svg>
+      ),
+      Search: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+      ),
+      User: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      ),
+      MessageSquare: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      ),
+      CreditCard: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="20" height="14" x="2" y="5" rx="2" />
+          <line x1="2" x2="22" y1="10" y2="10" />
+        </svg>
+      ),
+      ShieldCheck: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      ),
+      Sparkles: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+        </svg>
+      ),
+      Settings: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      ),
+      Check: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      ),
+      Phone: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+      ),
+      ArrowUpRight: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 7h10v10" /><path d="M7 17 17 7" />
+        </svg>
+      ),
+      Truck: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+          <path d="M15 18H9" />
+          <path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-4h-5v10" />
+          <circle cx="7" cy="18" r="2" />
+          <circle cx="17" cy="18" r="2" />
+        </svg>
+      ),
+      Radio: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="2" />
+          <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
+        </svg>
+      ),
+      ChevronRight: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      ),
+      X: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+        </svg>
+      ),
+      Menu: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
+      ),
+      Send: ({ className = "w-4 h-4" }) => (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" />
+        </svg>
+      )
+    };
+
+    // =========================================================================
+    // MOCK SHIPMENTS DATA
+    // =========================================================================
+    const INITIAL_SHIPMENTS = [
+      {
+        trackingId: 'AT-9842',
+        orderNumber: 'ORD-2026-9842',
+        productName: 'Aura Studio ANC Headphones (Matte Black)',
+        category: 'Audio Equipment',
+        carrier: 'FedEx Express',
+        carrierTrackingNumber: 'FX-884102941',
+        status: 'Out for Delivery',
+        destinationCity: 'Austin, TX',
+        destinationAddress: '742 Evergreen Terrace, Austin TX 78701',
+        estimatedDelivery: 'Today by 4:30 PM EST',
+        customerName: 'Alex Mercer',
+        customerEmail: 'alex.mercer@example.com',
+        customerPhone: '+1 (555) 234-8901',
+        mapTelemetry: {
+          originName: 'Dallas Logistics Center, TX',
+          destinationName: '742 Evergreen Terrace, Austin, TX',
+          currentLocationName: 'Austin Route #14 (3.8 Miles Out)',
+          speed: '38 MPH',
+          heading: '214° SW (Downtown)',
+          distanceRemaining: '3.8 Miles',
+          totalDistance: '195 Miles',
+          etaExact: 'Today at 04:30 PM EST',
+          vehicleModel: 'FedEx E-Transit #14',
+          driverName: 'Carlos Martinez',
+          driverBadge: 'FDX-8812',
+          trafficStatus: 'Optimal (Free-flow arterial)',
+          satellitesLocked: '14 GNSS Sats (±1.2m Accuracy)',
+          routeProgressPct: 78,
+          waypoints: [
+            { id: 1, name: 'Dallas Logistics Center', type: 'Origin Hub', x: 120, y: 90, time: 'Sep 29, 10:14 AM', passed: true, note: 'Quality check verified & freight sealed' },
+            { id: 2, name: 'FedEx Regional Hub (Dallas)', type: 'Sorting Facility', x: 280, y: 145, time: 'Sep 29, 06:45 PM', passed: true, note: 'Departed sorting facility on I-35 corridor' },
+            { id: 3, name: 'Austin Central Facility', type: 'Destination Station', x: 490, y: 225, time: 'Sep 30, 08:30 AM', passed: true, note: 'Received at terminal & transferred to route' },
+            { id: 4, name: 'Austin Route #14', type: 'Courier Van', x: 670, y: 280, time: 'Live GPS Telemetry', passed: true, isLive: true, note: 'Courier actively approaching doorstep' },
+            { id: 5, name: '742 Evergreen Terrace, Austin', type: 'Customer Doorstep', x: 830, y: 345, time: 'ETA Today 4:30 PM', passed: false, note: 'Authorized contactless doorstep placement' }
+          ]
+        },
+        timeline: [
+          { status: 'Quality Inspection & Dispatch Verification', location: 'Dallas Logistics Center, TX', timestamp: 'Sep 29, 10:14 AM', completed: true },
+          { status: 'Departed Regional Distribution Center', location: 'FedEx Regional Hub, Dallas TX', timestamp: 'Sep 29, 06:45 PM', completed: true },
+          { status: 'Arrived at Local Destination Terminal', location: 'Austin Central Station, TX', timestamp: 'Sep 30, 08:30 AM', completed: true },
+          { status: 'Out for Final Delivery with Courier', location: 'Austin Route #14', timestamp: 'Today, 07:15 AM', completed: true },
+          { status: 'Delivered & Signature Verification', location: '742 Evergreen Terrace, Austin TX', timestamp: 'Estimated Today by 4:30 PM', completed: false }
+        ]
+      },
+      {
+        trackingId: 'AT-1024',
+        orderNumber: 'ORD-2026-1024',
+        productName: 'Aura Pulse Smartwatch Replacement Band',
+        category: 'Wearables',
+        carrier: 'UPS Worldwide',
+        carrierTrackingNumber: '1Z9999999999999999',
+        status: 'In Transit',
+        destinationCity: 'Seattle, WA',
+        destinationAddress: '1200 4th Ave, Seattle WA 98101',
+        estimatedDelivery: 'Oct 03 by End of Day',
+        customerName: 'Jordan Reed',
+        customerEmail: 'jordan.reed@example.com',
+        customerPhone: '+1 (555) 876-5432',
+        mapTelemetry: {
+          originName: 'Reno Hub, NV',
+          destinationName: '1200 4th Ave, Seattle WA',
+          currentLocationName: 'UPS Hub Portland OR (In Transit)',
+          speed: '58 MPH',
+          heading: '350° N (I-5 Corridor)',
+          distanceRemaining: '174 Miles',
+          totalDistance: '705 Miles',
+          etaExact: 'Oct 03, 05:00 PM PST',
+          vehicleModel: 'UPS Freightliner #88',
+          driverName: 'Sarah Jenkins',
+          driverBadge: 'UPS-4019',
+          trafficStatus: 'Moderate Transit',
+          satellitesLocked: '12 GNSS Sats (±1.8m)',
+          routeProgressPct: 52,
+          waypoints: [
+            { id: 1, name: 'PulseCX Reno Facility', type: 'Origin Hub', x: 130, y: 320, time: 'Sep 30, 04:20 PM', passed: true, note: 'Freight container sealed' },
+            { id: 2, name: 'UPS Hub, Portland OR', type: 'Sorting Facility', x: 480, y: 210, time: 'Oct 01, 06:00 AM', passed: true, isLive: true, note: 'I-5 transit north' },
+            { id: 3, name: 'Seattle Terminal', type: 'Destination Station', x: 720, y: 130, time: 'Scheduled Oct 02', passed: false, note: 'Scheduled morning arrival' },
+            { id: 4, name: '1200 4th Ave, Seattle WA', type: 'Customer Doorstep', x: 840, y: 80, time: 'ETA Oct 03', passed: false, note: 'Commercial reception' }
+          ]
+        },
+        timeline: [
+          { status: 'Package Processed', location: 'PulseCX West Coast Hub, Reno NV', timestamp: 'Sep 30, 04:20 PM', completed: true },
+          { status: 'In Transit through Carrier Network', location: 'UPS Hub, Portland OR', timestamp: 'Oct 01, 06:00 AM', completed: true },
+          { status: 'Out for Delivery', location: 'Seattle Terminal', timestamp: 'Scheduled Oct 03', completed: false }
+        ]
+      },
+      {
+        trackingId: 'AT-5521',
+        orderNumber: 'ORD-2026-5521',
+        productName: 'Aura Hub Pro - Smart Home Matter Controller',
+        category: 'Smart Home',
+        carrier: 'FedEx Express',
+        carrierTrackingNumber: 'FX-339102488',
+        status: 'Delivered',
+        destinationCity: 'Denver, CO',
+        destinationAddress: '900 16th St, Denver CO 80202',
+        estimatedDelivery: 'Delivered Sep 28 at 2:15 PM',
+        customerName: 'Elena Vance',
+        customerEmail: 'elena.vance@example.com',
+        customerPhone: '+1 (555) 345-6789',
+        mapTelemetry: {
+          originName: 'PulseCX Denver Station, CO',
+          destinationName: '900 16th St, Denver CO',
+          currentLocationName: 'Delivered & Signed',
+          speed: '0 MPH (Completed)',
+          heading: 'Stationary',
+          distanceRemaining: '0.0 Miles',
+          totalDistance: '18 Miles',
+          etaExact: 'Delivered Sep 28 at 02:15 PM',
+          vehicleModel: 'FedEx Express Local Van #02',
+          driverName: 'David Kim',
+          driverBadge: 'FDX-2201',
+          trafficStatus: 'Completed',
+          satellitesLocked: '15 GNSS Sats',
+          routeProgressPct: 100,
+          waypoints: [
+            { id: 1, name: 'PulseCX Denver Station', type: 'Origin Hub', x: 150, y: 220, time: 'Sep 26, 09:00 AM', passed: true, note: 'Order dispatched' },
+            { id: 2, name: 'Denver Sorting Terminal', type: 'Sorting Facility', x: 460, y: 220, time: 'Sep 27, 02:30 PM', passed: true, note: 'Sorted for van' },
+            { id: 3, name: '900 16th St, Denver CO', type: 'Customer Doorstep', x: 820, y: 220, time: 'Sep 28, 02:15 PM', passed: true, isLive: true, note: 'Delivered & signed' }
+          ]
+        },
+        timeline: [
+          { status: 'Order Dispatched', location: 'Denver Station, CO', timestamp: 'Sep 26, 09:00 AM', completed: true },
+          { status: 'Delivered & Inspected', location: 'Front Doorstep, Denver CO', timestamp: 'Sep 28, 02:15 PM', completed: true }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // INITIAL CUSTOMER PROFILE
+    // =========================================================================
+    const DEFAULT_CUSTOMER = {
+      id: 'usr_981273',
+      firstName: 'Alex',
+      surname: 'Mercer',
+      phone: '+1 (555) 234-8901',
+      email: 'alex.mercer@example.com',
+      membershipTier: 'Gold',
+      registeredAt: '2026-08-15T09:30:00Z',
+      registeredDevices: [
+        {
+          serialNumber: 'SN-PLS-8821',
+          modelName: 'Aura Pulse Smartwatch',
+          category: 'Wearables',
+          purchaseDate: 'Aug 15, 2026',
+          warrantyStatus: 'Active',
+          warrantyExpires: 'Aug 15, 2028 (2-Year Protection)',
+          healthStatus: 'Optimal (Battery Health: 99%)',
+          lastSync: 'Today at 08:45 AM'
+        },
+        {
+          serialNumber: 'SN-ANC-4412',
+          modelName: 'Aura Studio ANC Headphones',
+          category: 'Audio',
+          purchaseDate: 'Sep 29, 2026',
+          warrantyStatus: 'Active',
+          warrantyExpires: 'Sep 29, 2027 (1-Year Standard)',
+          healthStatus: 'In Transit / Delivery Today',
+          lastSync: 'N/A'
+        }
+      ]
+    };
+
+    // =========================================================================
+    // REACTIVE FLUID FLOWING GRADIENT WAVE COMPONENT (BOTTOM VIEWPORT)
+    // Continuous flowing fluid wave with interactive cursor physics
+    // =========================================================================
+    // =========================================================================
+    // REACTIVE FLUID FLOWING GRADIENT WAVE COMPONENT (HIGH SPEED & INTERACTIVE)
+    // Fast flowing liquid plasma waves with responsive cursor swell, wake & ripples
+    // =========================================================================
+    function ReactiveFluidWave() {
+      const canvasRef = useRef(null);
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+        
+        let width = (canvas.width = window.innerWidth);
+        let height = (canvas.height = window.innerHeight);
+
+        let mouse = {
+          x: width * 0.5,
+          y: height * 0.8,
+          targetX: width * 0.5,
+          targetY: height * 0.8,
+          vx: 0,
+          vy: 0,
+          prevX: width * 0.5,
+          speed: 0,
+          active: true
+        };
+
+        // Interactive ripple shockwaves spawned on movement and click
+        let ripples = [];
+
+        const handleResize = () => {
+          if (!canvas) return;
+          width = canvas.width = window.innerWidth;
+          height = canvas.height = window.innerHeight;
+        };
+
+        const handleMouseMove = (e) => {
+          mouse.targetX = e.clientX;
+          mouse.targetY = e.clientY;
+          mouse.active = true;
+
+          // Spawn fluid ripples on significant movement
+          if (Math.hypot(e.clientX - mouse.prevX, e.clientY - mouse.y) > 25 && ripples.length < 12) {
+            ripples.push({
+              x: e.clientX,
+              radius: 5,
+              maxRadius: width * 0.35,
+              amplitude: 35,
+              speed: 9
+            });
+          }
+        };
+
+        const handleMouseDown = (e) => {
+          ripples.push({
+            x: e.clientX,
+            radius: 8,
+            maxRadius: width * 0.45,
+            amplitude: 60,
+            speed: 12
+          });
+        };
+
+        const handleTouchMove = (e) => {
+          if (e.touches && e.touches[0]) {
+            mouse.targetX = e.touches[0].clientX;
+            mouse.targetY = e.touches[0].clientY;
+            mouse.active = true;
+          }
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('mousemove', handleMouseMove, { passive: true });
+        window.addEventListener('mousedown', handleMouseDown, { passive: true });
+        window.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+        let t = 0;
+
+        const render = () => {
+          // FAST FLOW SPEED (Over 3.5x faster for visible, churning, energetic flow)
+          t += 0.052;
+
+          // Responsive lerp tracking (quick response to mouse)
+          mouse.x += (mouse.targetX - mouse.x) * 0.12;
+          mouse.y += (mouse.targetY - mouse.y) * 0.12;
+
+          // Calculate mouse velocity & kinetic energy
+          mouse.vx = mouse.x - mouse.prevX;
+          mouse.prevX = mouse.x;
+          mouse.speed = Math.abs(mouse.vx);
+
+          // Update active ripples
+          for (let i = ripples.length - 1; i >= 0; i--) {
+            const r = ripples[i];
+            r.radius += r.speed;
+            r.amplitude *= 0.94; // fade out
+            if (r.radius > r.maxRadius || r.amplitude < 0.8) {
+              ripples.splice(i, 1);
+            }
+          }
+
+          ctx.clearRect(0, 0, width, height);
+
+          // Base vertical origin of wave (lower ~32% of screen)
+          const baseY = height * 0.72;
+
+          // Proximity & normalized cursor position
+          const mouseNormX = (mouse.x / width) - 0.5; // -0.5 to 0.5
+          const mouseProximity = Math.max(0.15, Math.min(1.2, 1 - (mouse.y / height) * 0.6));
+          const velocitySurge = Math.min(50, mouse.speed * 2.2);
+
+          // Helper to calculate ripple displacements at coordinate x
+          const getRippleOffset = (x) => {
+            let offset = 0;
+            for (let i = 0; i < ripples.length; i++) {
+              const r = ripples[i];
+              const dist = Math.abs(x - r.x);
+              const wavePhase = (dist - r.radius) * 0.045;
+              if (dist < r.radius + 80 && dist > r.radius - 80) {
+                offset += Math.sin(wavePhase) * r.amplitude * Math.exp(-Math.abs(dist - r.radius) * 0.03);
+              }
+            }
+            return offset;
+          };
+
+          // ===================================================================
+          // LAYER 1: Vivid Electric Cyan & Deep Royal Blue (Fast Wave)
+          // ===================================================================
+          {
+            const grad1 = ctx.createLinearGradient(0, height * 0.58, width, height);
+            grad1.addColorStop(0, '#00F0FF'); // Electric Cyan
+            grad1.addColorStop(0.24, '#1E40FF'); // Deep Cobalt Blue
+            grad1.addColorStop(0.58, '#315DFF'); // Royal Blue
+            grad1.addColorStop(0.84, '#7047FF'); // Electric Purple
+            grad1.addColorStop(1, '#00F0FF');
+
+            ctx.fillStyle = grad1;
+            ctx.beginPath();
+            ctx.moveTo(-60, height);
+
+            const step = 14;
+            for (let x = -60; x <= width + 60; x += step) {
+              // High-amplitude, high-speed multi-frequency harmonic flow
+              const flow1 = Math.sin(x * 0.0028 + t * 1.6) * 58;
+              const flow2 = Math.cos(x * 0.0048 - t * 1.2) * 38;
+              const flow3 = Math.sin(x * 0.0016 + t * 2.1) * 24;
+
+              // Dramatic Gaussian suction/swell toward cursor
+              const distToMouse = Math.abs(x - mouse.x);
+              const cursorSwell = Math.exp(-(distToMouse * distToMouse) / (width * width * 0.038)) * (85 * mouseProximity + velocitySurge);
+              const cursorWakeTilt = mouseNormX * (x - width * 0.5) * 0.09;
+              const rippleDisp = getRippleOffset(x);
+
+              const y = baseY + flow1 + flow2 + flow3 - cursorSwell + cursorWakeTilt + rippleDisp;
+
+              ctx.lineTo(x, y);
+            }
+
+            ctx.lineTo(width + 60, height);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // ===================================================================
+          // LAYER 2: Radiant Magenta, Violet & Hot Pink (Fast Offset Crest)
+          // ===================================================================
+          {
+            const grad2 = ctx.createLinearGradient(0, height * 0.62, width, height);
+            grad2.addColorStop(0.02, '#1E40FF');
+            grad2.addColorStop(0.28, '#8A2BE2'); // Radiant Violet
+            grad2.addColorStop(0.62, '#E024C3'); // Hot Magenta
+            grad2.addColorStop(0.85, '#FF3B94'); // Bright Neon Pink
+            grad2.addColorStop(1, '#7047FF');
+
+            ctx.fillStyle = grad2;
+            ctx.beginPath();
+            ctx.moveTo(-60, height);
+
+            const step = 14;
+            for (let x = -60; x <= width + 60; x += step) {
+              const flow1 = Math.cos(x * 0.0034 - t * 1.45) * 50;
+              const flow2 = Math.sin(x * 0.0056 + t * 1.8) * 34;
+
+              const distToMouse = Math.abs(x - mouse.x);
+              const cursorSwell = Math.exp(-(distToMouse * distToMouse) / (width * width * 0.032)) * (75 * mouseProximity + velocitySurge * 0.8);
+              const cursorWakeTilt = -mouseNormX * (x - width * 0.5) * 0.07;
+              const rippleDisp = getRippleOffset(x) * 1.15;
+
+              const y = (baseY + 36) + flow1 + flow2 - cursorSwell + cursorWakeTilt + rippleDisp;
+
+              ctx.lineTo(x, y);
+            }
+
+            ctx.lineTo(width + 60, height);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // ===================================================================
+          // LAYER 3: Sunset Amber, Golden Glow & Peach Wave (Dynamic Highlights)
+          // ===================================================================
+          {
+            const grad3 = ctx.createLinearGradient(0, height * 0.68, width, height);
+            grad3.addColorStop(0.06, 'rgba(0, 240, 255, 0.65)');
+            grad3.addColorStop(0.35, 'rgba(138, 43, 226, 0.8)');
+            grad3.addColorStop(0.65, 'rgba(255, 170, 0, 0.95)'); // Glowing Sunset Amber/Gold
+            grad3.addColorStop(0.85, 'rgba(255, 59, 148, 0.85)'); // Hot Pink
+            grad3.addColorStop(1, 'rgba(30, 64, 255, 0.7)');
+
+            ctx.fillStyle = grad3;
+            ctx.beginPath();
+            ctx.moveTo(-60, height);
+
+            const step = 14;
+            for (let x = -60; x <= width + 60; x += step) {
+              const flow1 = Math.sin(x * 0.0042 + t * 2.2) * 44;
+              const flow2 = Math.cos(x * 0.0068 - t * 1.3) * 28;
+
+              const distToMouse = Math.abs(x - mouse.x);
+              const cursorSwell = Math.exp(-(distToMouse * distToMouse) / (width * width * 0.024)) * (65 * mouseProximity);
+              const rippleDisp = getRippleOffset(x) * 0.85;
+
+              const y = (baseY + 68) + flow1 + flow2 - cursorSwell + rippleDisp;
+
+              ctx.lineTo(x, y);
+            }
+
+            ctx.lineTo(width + 60, height);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // ===================================================================
+          // LAYER 4: Interactive Reactive Cursor Plasma Bloom
+          // ===================================================================
+          if (mouse.active) {
+            const bloomY = Math.max(height * 0.72, Math.min(height * 0.98, mouse.y));
+            const bloomRadius = Math.max(width * 0.18, 180 + mouse.speed * 5);
+            
+            const bloomGrad = ctx.createRadialGradient(
+              mouse.x, bloomY, 10,
+              mouse.x, bloomY, bloomRadius
+            );
+            bloomGrad.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+            bloomGrad.addColorStop(0.18, 'rgba(255, 170, 0, 0.5)'); // Golden core
+            bloomGrad.addColorStop(0.45, 'rgba(224, 36, 195, 0.4)'); // Magenta halo
+            bloomGrad.addColorStop(0.75, 'rgba(0, 240, 255, 0.25)'); // Cyan rim
+            bloomGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+            ctx.fillStyle = bloomGrad;
+            ctx.beginPath();
+            ctx.arc(mouse.x, bloomY, bloomRadius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          animationFrameId = requestAnimationFrame(render);
+        };
+
+        animationFrameId = requestAnimationFrame(render);
+
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mousedown', handleMouseDown);
+          window.removeEventListener('touchmove', handleTouchMove);
+          cancelAnimationFrame(animationFrameId);
+        };
+      }, []);
+
+      return (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 select-none bg-[#050608]">
+          {/* Top Vignette Overlay: Keeps upper 65-70% deep black, smoothly transitioning */}
+          <div 
+            className="absolute inset-0 z-10 pointer-events-none"
+            style={{
+              background: 'linear-gradient(180deg, #050608 0%, #050608 45%, rgba(5,6,8,0.85) 68%, rgba(5,6,8,0.12) 100%)'
+            }}
+          />
+
+          {/* Dynamic Flowing Reactive Canvas Wave (Sharper blur & higher opacity for vivid visual interest) */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{
+              filter: 'blur(48px)',
+              opacity: 0.88,
+              transform: 'translate3d(0, 0, 0)',
+            }}
+          />
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // MAIN APP COMPONENT
+    // =========================================================================
+    function App() {
+      // Views: 'tracker' | 'manager' | 'auth' | 'payments' | 'policies'
+      const [activeTab, setActiveTab] = useState('tracker');
+      const [customer, setCustomer] = useState(DEFAULT_CUSTOMER);
+      const [managerTicketRef, setManagerTicketRef] = useState('TICK-8842');
+      const [managerInitialText, setManagerInitialText] = useState('');
+      const [externalPrompt, setExternalPrompt] = useState(null);
+      const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+      const [selectedShipmentId, setSelectedShipmentId] = useState('AT-9842');
+
+      const handleGoHome = () => {
+        setActiveTab('tracker');
+        setMobileMenuOpen(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const handleAskNova = (promptText) => {
+        setExternalPrompt(promptText);
+      };
+
+      const handleContactServiceManager = (topic, ticketId = 'TICK-8842') => {
+        setManagerTicketRef(ticketId);
+        if (topic) setManagerInitialText(topic);
+        setActiveTab('manager');
+        setMobileMenuOpen(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const handleCustomerRegistered = (newProfile) => {
+        setCustomer(newProfile);
+      };
+
+      const handleLogout = () => {
+        setCustomer(null);
+      };
+
+      return (
+        <div className="relative min-h-screen flex flex-col md:flex-row bg-[#050608] text-[#F5F7FA] font-sans antialiased overflow-x-hidden">
+          
+          {/* Subtle Reactive Fluid Animated Gradient Wave (Background) */}
+          <ReactiveFluidWave />
+
+          {/* ========================================================================= */}
+          {/* MOBILE HEADER BAR */}
+          {/* ========================================================================= */}
+          <header className="md:hidden sticky top-0 z-40 bg-[#080A0D]/90 backdrop-blur-md border-b border-[#1C2025] px-4 py-3 flex items-center justify-between shadow-subtle">
+            <div className="flex items-center gap-2.5">
+              <div 
+                onClick={handleGoHome}
+                className="w-8 h-8 rounded-lg bg-[#14181D] border border-[#242A31] flex items-center justify-center text-white font-bold text-sm cursor-pointer shadow-subtle"
+                title="PulseCX Home"
+              >
+                P
+              </div>
+              <div 
+                onClick={() => { window.location.href = '/admin'; }}
+                className="cursor-pointer font-bold text-base tracking-tight text-[#F5F7FA] hover:text-[#8B939C] transition-colors"
+                title="Staff Admin Portal"
+              >
+                PulseCX
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {customer ? (
+                <button
+                  onClick={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="text-xs font-medium bg-[#14181D] text-[#F5F7FA] border border-[#242A31] px-2.5 py-1 rounded-md flex items-center gap-1.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span>{customer.firstName}</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="text-xs font-semibold bg-[#F1F3F5] text-[#090B0D] px-3 py-1 rounded-md"
+                >
+                  Sign In
+                </button>
+              )}
+
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-1.5 rounded-md bg-[#14181D] text-[#8B939C] hover:text-[#F5F7FA] border border-[#242A31]"
+                aria-label="Toggle Navigation"
+              >
+                {mobileMenuOpen ? <Icons.X className="w-5 h-5" /> : <Icons.Menu className="w-5 h-5" />}
+              </button>
+            </div>
+          </header>
+
+          {/* Mobile Drawer */}
+          {mobileMenuOpen && (
+            <div className="md:hidden bg-[#080A0D] border-b border-[#1C2025] p-4 space-y-1.5 animate-fadeIn z-30 shadow-dropdown relative">
+              <button
+                onClick={() => { setActiveTab('tracker'); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className={`w-full text-left px-3.5 py-2.5 rounded-lg font-medium text-xs flex items-center gap-2.5 ${activeTab === 'tracker' ? 'bg-[#171B20] text-[#F5F7FA] font-semibold border border-[#2A3037]' : 'text-[#8B939C] hover:bg-[#101318]'}`}
+              >
+                <Icons.Package className="w-4 h-4" />
+                <span>Product & GPS Tracker</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('manager'); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className={`w-full text-left px-3.5 py-2.5 rounded-lg font-medium text-xs flex items-center gap-2.5 ${activeTab === 'manager' ? 'bg-[#171B20] text-[#F5F7FA] font-semibold border border-[#2A3037]' : 'text-[#8B939C] hover:bg-[#101318]'}`}
+              >
+                <Icons.MessageSquare className="w-4 h-4" />
+                <span>Service Manager Desk</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('auth'); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className={`w-full text-left px-3.5 py-2.5 rounded-lg font-medium text-xs flex items-center gap-2.5 ${activeTab === 'auth' ? 'bg-[#171B20] text-[#F5F7FA] font-semibold border border-[#2A3037]' : 'text-[#8B939C] hover:bg-[#101318]'}`}
+              >
+                <Icons.User className="w-4 h-4" />
+                <span>Customer Account Hub</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('payments'); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className={`w-full text-left px-3.5 py-2.5 rounded-lg font-medium text-xs flex items-center gap-2.5 ${activeTab === 'payments' ? 'bg-[#171B20] text-[#F5F7FA] font-semibold border border-[#2A3037]' : 'text-[#8B939C] hover:bg-[#101318]'}`}
+              >
+                <Icons.CreditCard className="w-4 h-4" />
+                <span>Payment & Refund Tracker</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('policies'); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className={`w-full text-left px-3.5 py-2.5 rounded-lg font-medium text-xs flex items-center gap-2.5 ${activeTab === 'policies' ? 'bg-[#171B20] text-[#F5F7FA] font-semibold border border-[#2A3037]' : 'text-[#8B939C] hover:bg-[#101318]'}`}
+              >
+                <Icons.ShieldCheck className="w-4 h-4" />
+                <span>Service Policies</span>
+              </button>
+              <a
+                href="/admin"
+                className="w-full text-left px-3.5 py-2.5 rounded-lg font-medium text-xs flex items-center justify-between text-[#8B939C] hover:bg-[#101318] border-t border-[#1C2025] pt-3 mt-1"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Icons.Settings className="w-4 h-4" />
+                  <span>PulseCX Staff Portal</span>
+                </span>
+                <Icons.ArrowUpRight className="w-3.5 h-3.5 text-[#69717B]" />
+              </a>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* DESKTOP VERTICAL SIDEBAR (DARK THEMED) */}
+          {/* ========================================================================= */}
+          <aside className="hidden md:flex flex-col justify-between w-64 lg:w-72 shrink-0 bg-[#080A0D] border-r border-[#1C2025] h-screen sticky top-0 p-5 overflow-y-auto z-30 shadow-card">
+            
+            {/* Top: Logo + User Profile + Navigation Menu */}
+            <div className="space-y-6">
+              
+              {/* Logo Header */}
+              <div className="flex items-center gap-3">
+                <div
+                  onClick={handleGoHome}
+                  className="w-9 h-9 rounded-lg bg-[#14181D] border border-[#242A31] flex items-center justify-center text-[#F5F7FA] font-bold text-base cursor-pointer hover:border-[#38424D] transition shadow-subtle shrink-0"
+                  title="Return to Home Screen"
+                >
+                  P
+                </div>
+                <div 
+                  onClick={() => { window.location.href = '/admin'; }}
+                  className="cursor-pointer group min-w-0"
+                  title="Open Staff Admin Portal"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-lg tracking-tight text-[#F5F7FA] group-hover:text-[#B6C2CC] transition-colors">
+                      PulseCX
+                    </span>
+                    <span className="text-[10px] uppercase font-semibold text-[#8B939C] bg-[#14181D] px-1.5 py-0.5 rounded border border-[#242A31]">
+                      SaaS
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#858D96] truncate">
+                    Logistics & Experience Platform
+                  </p>
+                </div>
+              </div>
+
+              {/* User Profile Card */}
+              <div className="p-3 rounded-xl bg-[#101318] border border-[#1C2025]">
+                {customer ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-full bg-[#171B20] border border-[#242A31] text-[#E8EBEF] font-semibold text-xs flex items-center justify-center shrink-0">
+                          {customer.firstName ? customer.firstName[0] : 'U'}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-semibold text-[#E8EBEF] truncate">
+                            {customer.firstName} {customer.surname}
+                          </div>
+                          <div className="text-[11px] text-[#858D96] truncate">
+                            Customer Account
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-semibold text-[#E8EBEF] bg-[#171B20] border border-[#242A31] px-1.5 py-0.5 rounded">
+                        {customer.membershipTier}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-[#1C2025] text-[11px]">
+                      <button
+                        onClick={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                        className="text-[#858D96] hover:text-[#E8EBEF] font-medium transition"
+                      >
+                        Account Hub
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="text-[#69717B] hover:text-[#E8EBEF] transition"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="text-xs text-[#858D96]">Sign in to track orders, manage devices, and contact your manager.</div>
+                    <button
+                      onClick={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                      className="w-full saas-btn-primary text-xs py-2 flex items-center justify-center gap-1.5"
+                    >
+                      <Icons.User className="w-3.5 h-3.5" />
+                      <span>Customer Sign In</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation Menu */}
+              <nav className="space-y-1">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-[#69717B] px-3 py-1">
+                  Workspace
+                </div>
+
+                <button
+                  onClick={handleGoHome}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center justify-between group ${
+                    activeTab === 'tracker'
+                      ? 'bg-[#171B20] text-[#E8EBEF] font-semibold border border-[#2A3037]'
+                      : 'text-[#858D96] hover:bg-[#101318] hover:text-[#E8EBEF]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icons.Package className={`w-4 h-4 ${activeTab === 'tracker' ? 'text-[#E8EBEF]' : 'text-[#69717B]'}`} />
+                    <span>Product & GPS Tracker</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('manager'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center justify-between group ${
+                    activeTab === 'manager'
+                      ? 'bg-[#171B20] text-[#E8EBEF] font-semibold border border-[#2A3037]'
+                      : 'text-[#858D96] hover:bg-[#101318] hover:text-[#E8EBEF]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icons.MessageSquare className={`w-4 h-4 ${activeTab === 'manager' ? 'text-[#E8EBEF]' : 'text-[#69717B]'}`} />
+                    <span>Service Manager Desk</span>
+                  </div>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center justify-between group ${
+                    activeTab === 'auth'
+                      ? 'bg-[#171B20] text-[#E8EBEF] font-semibold border border-[#2A3037]'
+                      : 'text-[#858D96] hover:bg-[#101318] hover:text-[#E8EBEF]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icons.User className={`w-4 h-4 ${activeTab === 'auth' ? 'text-[#E8EBEF]' : 'text-[#69717B]'}`} />
+                    <span>Customer Account Hub</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('payments'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center justify-between group ${
+                    activeTab === 'payments'
+                      ? 'bg-[#171B20] text-[#E8EBEF] font-semibold border border-[#2A3037]'
+                      : 'text-[#858D96] hover:bg-[#101318] hover:text-[#E8EBEF]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icons.CreditCard className={`w-4 h-4 ${activeTab === 'payments' ? 'text-[#E8EBEF]' : 'text-[#69717B]'}`} />
+                    <span>Payment & Refund Tracker</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('policies'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center justify-between group ${
+                    activeTab === 'policies'
+                      ? 'bg-[#171B20] text-[#E8EBEF] font-semibold border border-[#2A3037]'
+                      : 'text-[#858D96] hover:bg-[#101318] hover:text-[#E8EBEF]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icons.ShieldCheck className={`w-4 h-4 ${activeTab === 'policies' ? 'text-[#E8EBEF]' : 'text-[#69717B]'}`} />
+                    <span>Service Policies</span>
+                  </div>
+                </button>
+              </nav>
+
+            </div>
+
+            {/* Bottom: Quick Actions & Operational Details */}
+            <div className="pt-4 border-t border-[#1C2025] space-y-3">
+              <button
+                onClick={() => handleContactServiceManager()}
+                className="w-full saas-btn-secondary text-xs py-2 px-3 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <Icons.MessageSquare className="w-3.5 h-3.5 text-[#858D96]" />
+                  <span>Marcus Vance</span>
+                </div>
+                <span className="text-[10px] text-[#69717B] font-mono">Ext 401</span>
+              </button>
+
+              <div className="p-3 rounded-lg bg-[#101318] border border-[#1C2025] text-[11px] space-y-1.5 text-[#858D96]">
+                <div className="flex items-center justify-between">
+                  <span>Support:</span>
+                  <span className="font-mono text-[#E8EBEF] font-medium">+1 (800) 555-PULSE</span>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-[#1C2025]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>GPS Telemetry</span>
+                  </span>
+                  <span className="font-mono text-[#E8EBEF]">14 Sats (±1.2m)</span>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-[#69717B] text-center font-mono">
+                PulseCX Platform • Dark SaaS
+              </div>
+            </div>
+
+          </aside>
+
+          {/* ========================================================================= */}
+          {/* MAIN WORKSPACE CONTENT */}
+          {/* ========================================================================= */}
+          <div className="flex-1 flex flex-col min-w-0 bg-transparent min-h-screen relative z-10">
+            
+            {/* Top SaaS Command Bar (Translucent Dark Over Gradient) */}
+            <header className="sticky top-0 z-20 bg-[rgba(6,8,10,0.88)] backdrop-blur-[16px] border-b border-[rgba(255,255,255,0.06)] px-6 py-3.5 flex items-center justify-between gap-4 shadow-subtle">
+              
+              {/* Breadcrumb Navigation */}
+              <div className="flex items-center gap-2 text-xs text-[#8B939C]">
+                <button 
+                  onClick={handleGoHome}
+                  className="font-medium text-[#8B939C] hover:text-[#F5F7FA] transition"
+                >
+                  PulseCX
+                </button>
+                <span>/</span>
+                <span className="font-semibold text-[#F5F7FA]">
+                  {activeTab === 'tracker' && 'Product & Shipment Tracker'}
+                  {activeTab === 'manager' && 'Service Manager Desk'}
+                  {activeTab === 'auth' && 'Customer Account Hub'}
+                  {activeTab === 'payments' && 'Payment & Refund Tracker'}
+                  {activeTab === 'policies' && 'Service Policies & Charter'}
+                </span>
+              </div>
+
+              {/* Status & Quick Links */}
+              <div className="flex items-center gap-3">
+                <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#101318] border border-[#242A31] text-xs text-[#8B939C]">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span className="text-[11px] font-medium text-[#E8EBEF]">System Operational</span>
+                </div>
+
+                <button
+                  onClick={() => handleContactServiceManager()}
+                  className="hidden sm:flex items-center gap-1.5 text-xs text-[#E8EBEF] bg-[#14181D] hover:bg-[#171B20] border border-[#242A31] px-3 py-1.5 rounded-md font-medium transition"
+                >
+                  <Icons.User className="w-3.5 h-3.5 text-[#8B939C]" />
+                  <span>Marcus Vance (Manager)</span>
+                </button>
+
+                <a
+                  href="/admin"
+                  className="flex items-center gap-1.5 saas-btn-primary text-xs px-3 py-1.5"
+                  title="PulseCX Staff Portal"
+                >
+                  <Icons.Settings className="w-3.5 h-3.5" />
+                  <span>Admin Portal</span>
+                </a>
+              </div>
+            </header>
+
+            {/* Main Page Body */}
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+              {activeTab === 'tracker' && (
+                <ProductTrackerPlatform
+                  customer={customer}
+                  selectedShipmentId={selectedShipmentId}
+                  setSelectedShipmentId={setSelectedShipmentId}
+                  onTextServiceManager={handleContactServiceManager}
+                  onOpenAuth={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  onAskNova={handleAskNova}
+                />
+              )}
+
+              {activeTab === 'manager' && (
+                <ServiceManagerDeskPlatform
+                  customer={customer}
+                  ticketRef={managerTicketRef}
+                  initialText={managerInitialText}
+                  onOpenAuth={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                />
+              )}
+
+              {activeTab === 'auth' && (
+                <CustomerLoginPlatform
+                  customer={customer}
+                  onLoginSuccess={(logged) => setCustomer(logged)}
+                  onRegisterSuccess={handleCustomerRegistered}
+                  onLogout={handleLogout}
+                  onGoToTracker={handleGoHome}
+                  onTextServiceManager={handleContactServiceManager}
+                />
+              )}
+
+              {activeTab === 'payments' && (
+                <PaymentTrackerPlatform
+                  customer={customer}
+                  onTextServiceManager={handleContactServiceManager}
+                  onOpenAuth={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                />
+              )}
+
+              {activeTab === 'policies' && (
+                <PolicySection onAskNova={handleAskNova} onTextServiceManager={handleContactServiceManager} />
+              )}
+            </main>
+
+            {/* Dark SaaS Footer */}
+            <footer className="bg-[#080A0D]/90 backdrop-blur-md border-t border-[#1C2025] text-[#8B939C] text-xs mt-auto">
+              <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <div 
+                    onClick={handleGoHome}
+                    className="w-6 h-6 rounded bg-[#14181D] border border-[#242A31] flex items-center justify-center text-white font-bold text-xs cursor-pointer"
+                  >
+                    P
+                  </div>
+                  <span className="font-semibold text-[#F5F7FA]">PulseCX Logistics Inc.</span>
+                  <span className="text-[#38424D]">|</span>
+                  <span>Enterprise Customer Experience & Real-Time Tracking</span>
+                </div>
+                <div className="flex items-center gap-6 text-xs">
+                  <button onClick={handleGoHome} className="hover:text-[#F5F7FA] transition">GPS Tracker</button>
+                  <button onClick={() => { setActiveTab('manager'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#F5F7FA] transition">Service Desk</button>
+                  <button onClick={() => { setActiveTab('payments'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#F5F7FA] transition">Refunds & Billing</button>
+                  <button onClick={() => { setActiveTab('policies'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#F5F7FA] transition">Policies</button>
+                  <a href="/admin" className="text-[#E8EBEF] hover:text-white font-medium transition">Admin Console ↗</a>
+                </div>
+              </div>
+            </footer>
+
+          </div>
+
+          {/* Floating Nova AI Assistant Button (Dark Mode with #F1F3F5 Pill) */}
+          <NovaAssistantWidget
+            customer={customer}
+            externalPrompt={externalPrompt}
+            onClearExternalPrompt={() => setExternalPrompt(null)}
+            onSwitchToManager={handleContactServiceManager}
+            onOpenAuth={() => { setActiveTab('auth'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          />
+
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SECTION 1: PRODUCT & GPS TRACKER PLATFORM
+    // =========================================================================
+    function ProductTrackerPlatform({ customer, selectedShipmentId, setSelectedShipmentId, onTextServiceManager, onOpenAuth, onAskNova }) {
+      const [viewMode, setViewMode] = useState('tracking'); // 'tracking' | 'devices' | 'warranty'
+      const [searchInput, setSearchInput] = useState('');
+      const [copyNotice, setCopyNotice] = useState(false);
+
+      const shipment = INITIAL_SHIPMENTS.find(s => s.trackingId === selectedShipmentId) || INITIAL_SHIPMENTS[0];
+
+      const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        const found = INITIAL_SHIPMENTS.find(s => 
+          s.trackingId.toLowerCase().includes(searchInput.toLowerCase()) ||
+          s.orderNumber.toLowerCase().includes(searchInput.toLowerCase()) ||
+          s.productName.toLowerCase().includes(searchInput.toLowerCase())
+        );
+        if (found) {
+          setSelectedShipmentId(found.trackingId);
+          setSearchInput('');
+        }
+      };
+
+      const copyTracking = () => {
+        navigator.clipboard.writeText(shipment.carrierTrackingNumber);
+        setCopyNotice(true);
+        setTimeout(() => setCopyNotice(false), 2000);
+      };
+
+      return (
+        <div className="space-y-6 animate-fadeIn">
+          
+          {/* SaaS Header & Segmented Controls (Dark Charcoal Card) */}
+          <div className="saas-card p-6 bg-[#101318] border border-[#242A31] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-1.5 max-w-2xl">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F7FA]">
+                Product & Shipment Tracker
+              </h1>
+              <p className="text-sm text-[#8B939C]">
+                Real-time shipment visibility, registered device verification, and service management from one workspace.
+              </p>
+
+              {/* Segmented Controls / Tabs */}
+              <div className="pt-3 flex items-center gap-1.5 flex-wrap">
+                <button
+                  onClick={() => setViewMode('tracking')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    viewMode === 'tracking'
+                      ? 'bg-[#242A31] text-[#F5F7FA] font-semibold border border-[#38424D]'
+                      : 'bg-[#14181D] text-[#8B939C] hover:bg-[#171B20] hover:text-[#F5F7FA] border border-[#1C2025]'
+                  }`}
+                >
+                  Live Courier Tracking
+                </button>
+                <button
+                  onClick={() => setViewMode('devices')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    viewMode === 'devices'
+                      ? 'bg-[#242A31] text-[#F5F7FA] font-semibold border border-[#38424D]'
+                      : 'bg-[#14181D] text-[#8B939C] hover:bg-[#171B20] hover:text-[#F5F7FA] border border-[#1C2025]'
+                  }`}
+                >
+                  Registered Devices ({customer ? customer.registeredDevices.length : 0})
+                </button>
+                <button
+                  onClick={() => setViewMode('warranty')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    viewMode === 'warranty'
+                      ? 'bg-[#242A31] text-[#F5F7FA] font-semibold border border-[#38424D]'
+                      : 'bg-[#14181D] text-[#8B939C] hover:bg-[#171B20] hover:text-[#F5F7FA] border border-[#1C2025]'
+                  }`}
+                >
+                  Warranty & SLA Guarantee
+                </button>
+              </div>
+            </div>
+
+            {/* Service Desk Officer Card */}
+            <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] flex items-center gap-4 shrink-0">
+              <div className="w-11 h-11 rounded-full bg-[#171B20] border border-[#2A3037] text-[#F5F7FA] font-bold text-sm flex items-center justify-center shrink-0">
+                MV
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#F5F7FA]">Marcus Vance</span>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-1.5 py-0.5 rounded">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Available
+                  </span>
+                </div>
+                <div className="text-[11px] text-[#8B939C]">Senior Service Manager (Desk #401)</div>
+                <button
+                  onClick={() => onTextServiceManager(`Question regarding shipment ${shipment.trackingId}`)}
+                  className="mt-2 text-xs font-medium text-[#B6C2CC] hover:text-[#F5F7FA] flex items-center gap-1 transition"
+                >
+                  <span>Contact Service Desk</span>
+                  <Icons.ChevronRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* VIEW MODE: LIVE COURIER TRACKING */}
+          {viewMode === 'tracking' && (
+            <>
+              {/* Command Search & Quick Shipment Suggestions */}
+              <div className="saas-card p-4 bg-[#101318] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <form onSubmit={handleSearchSubmit} className="relative flex-1">
+                  <Icons.Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8B939C]" />
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    placeholder="Search shipment, device serial, or tracking ID (e.g., AT-9842)..."
+                    className="w-full saas-input pl-10 pr-16 py-2.5 text-xs text-[#F5F7FA]"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-[#8B939C] bg-[#101318] px-1.5 py-0.5 rounded border border-[#242A31]">
+                    Enter ↵
+                  </span>
+                </form>
+
+                {/* Quick Selection Chips */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+                  <span className="text-[11px] text-[#8B939C] shrink-0">Shipments:</span>
+                  {INITIAL_SHIPMENTS.map(s => (
+                    <button
+                      key={s.trackingId}
+                      onClick={() => setSelectedShipmentId(s.trackingId)}
+                      className={`px-2.5 py-1.5 rounded-md text-xs font-mono transition shrink-0 ${
+                        selectedShipmentId === s.trackingId
+                          ? 'bg-[#242A31] text-[#F5F7FA] font-medium border border-[#38424D]'
+                          : 'bg-[#14181D] text-[#8B939C] border border-[#1C2025] hover:bg-[#171B20] hover:text-[#F5F7FA]'
+                      }`}
+                    >
+                      {s.trackingId}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Active Shipment Overview Banner */}
+              <div className="saas-card p-6 bg-[#101318] space-y-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#242A31]">
+                  <div>
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <span className="text-xs font-mono font-bold text-[#F5F7FA] bg-[#14181D] px-2.5 py-1 rounded border border-[#242A31]">
+                        {shipment.trackingId}
+                      </span>
+                      <span className="text-sm font-semibold text-[#F5F7FA]">
+                        {shipment.productName}
+                      </span>
+                      <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        {shipment.status}
+                      </span>
+                    </div>
+                    <div className="text-xs text-[#8B939C] mt-1.5 flex items-center gap-3">
+                      <span>Carrier: <strong className="text-[#E8EBEF]">{shipment.carrier}</strong></span>
+                      <span>Tracking #: <strong className="text-[#E8EBEF] font-mono">{shipment.carrierTrackingNumber}</strong></span>
+                      <button onClick={copyTracking} className="text-xs text-[#B6C2CC] hover:text-white underline">
+                        {copyNotice ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-left lg:text-right">
+                    <div className="text-[11px] uppercase tracking-wider text-[#8B939C] font-semibold">Estimated Delivery</div>
+                    <div className="text-base font-bold text-[#F5F7FA]">{shipment.estimatedDelivery}</div>
+                    <div className="text-xs text-[#8B939C]">{shipment.destinationAddress}</div>
+                  </div>
+                </div>
+
+                {/* Progress Bar (Track: #262B31, Fill: #B6C2CC) */}
+                <div>
+                  <div className="flex justify-between text-xs text-[#8B939C] mb-1.5">
+                    <span>Route Transit: {shipment.mapTelemetry.originName} → {shipment.destinationCity}</span>
+                    <span className="font-mono font-semibold text-[#F5F7FA]">{shipment.mapTelemetry.routeProgressPct}% Completed</span>
+                  </div>
+                  <div className="w-full h-2 bg-[#262B31] rounded-full overflow-hidden border border-[#242A31]">
+                    <div 
+                      className="h-full bg-[#B6C2CC] rounded-full transition-all duration-700" 
+                      style={{ width: `${shipment.mapTelemetry.routeProgressPct}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* ENTERPRISE DARK GPS ROUTE MAP COMPONENT */}
+              <LiveGpsShipmentMap 
+                shipment={shipment} 
+                onTextServiceManager={onTextServiceManager}
+                onAskNova={onAskNova}
+              />
+
+              {/* Shipment Timeline Steps */}
+              <div className="saas-card p-6 bg-[#101318] space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-[#F5F7FA] tracking-tight">
+                    Shipment Lifecycle Events
+                  </h3>
+                  <span className="text-xs text-[#8B939C] font-mono">
+                    {shipment.timeline.filter(t => t.completed).length} of {shipment.timeline.length} Steps Completed
+                  </span>
+                </div>
+
+                <div className="space-y-4 pt-2">
+                  {shipment.timeline.map((step, idx) => (
+                    <div key={idx} className="flex items-start gap-3.5 relative">
+                      {idx !== shipment.timeline.length - 1 && (
+                        <div className={`absolute left-3.5 top-7 bottom-0 w-[1.5px] ${step.completed ? 'bg-[#B6C2CC]' : 'bg-[#242A31]'}`} />
+                      )}
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10 border ${
+                        step.completed 
+                          ? 'bg-[#B6C2CC] text-[#090B0D] border-[#B6C2CC]' 
+                          : 'bg-[#101318] text-[#69717B] border-[#242A31]'
+                      }`}>
+                        {step.completed ? <Icons.Check className="w-3.5 h-3.5 font-bold" /> : <span className="text-xs">{idx + 1}</span>}
+                      </div>
+                      <div className="flex-1 pb-4">
+                        <div className="flex items-center justify-between flex-wrap gap-1">
+                          <span className={`text-xs font-semibold ${step.completed ? 'text-[#F5F7FA]' : 'text-[#8B939C]'}`}>
+                            {step.status}
+                          </span>
+                          <span className="text-[11px] font-mono text-[#8B939C]">
+                            {step.timestamp}
+                          </span>
+                        </div>
+                        <div className="text-xs text-[#8B939C] mt-0.5">
+                          {step.location}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* VIEW MODE: REGISTERED DEVICES */}
+          {viewMode === 'devices' && (
+            <div className="saas-card p-6 bg-[#101318] space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-[#F5F7FA]">Registered Hardware Devices</h3>
+                  <p className="text-xs text-[#8B939C]">Verified serial numbers, warranty coverage, and remote diagnostic telemetry.</p>
+                </div>
+                <button
+                  onClick={onOpenAuth}
+                  className="saas-btn-secondary text-xs px-3 py-1.5"
+                >
+                  Register New Device
+                </button>
+              </div>
+
+              {customer ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {customer.registeredDevices.map((dev, idx) => (
+                    <div key={idx} className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Icons.Package className="w-4 h-4 text-[#8B939C]" />
+                          <span className="text-xs font-bold text-[#F5F7FA]">{dev.modelName}</span>
+                        </div>
+                        <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded">
+                          ● {dev.warrantyStatus}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs text-[#8B939C]">
+                        <div>Serial: <strong className="text-[#E8EBEF] font-mono">{dev.serialNumber}</strong></div>
+                        <div>Category: <strong className="text-[#E8EBEF]">{dev.category}</strong></div>
+                        <div>Purchased: <strong className="text-[#E8EBEF]">{dev.purchaseDate}</strong></div>
+                        <div>Coverage: <strong className="text-[#E8EBEF]">{dev.warrantyExpires}</strong></div>
+                      </div>
+                      <div className="pt-2 border-t border-[#242A31] flex items-center justify-between text-xs">
+                        <span className="text-[11px] text-[#8B939C]">Health: {dev.healthStatus}</span>
+                        <button
+                          onClick={() => onTextServiceManager(`Warranty claim for device ${dev.serialNumber}`)}
+                          className="text-[#B6C2CC] hover:text-white font-medium underline"
+                        >
+                          Request Service
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center bg-[#14181D] rounded-xl border border-[#242A31] space-y-3">
+                  <Icons.User className="w-8 h-8 text-[#69717B] mx-auto" />
+                  <p className="text-xs text-[#8B939C]">Please sign in to view and manage your registered hardware devices.</p>
+                  <button onClick={onOpenAuth} className="saas-btn-primary text-xs px-4 py-2">
+                    Customer Sign In
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* VIEW MODE: WARRANTY & SLA */}
+          {viewMode === 'warranty' && (
+            <div className="saas-card p-6 bg-[#101318] space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-[#F5F7FA]">PulseCX Service Level Agreement & Guarantees</h3>
+                <p className="text-xs text-[#8B939C]">Enterprise logistics commitments, warranty replacements, and refund protection.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2">
+                  <div className="text-xs font-bold text-[#F5F7FA] flex items-center gap-1.5">
+                    <Icons.ShieldCheck className="w-4 h-4 text-[#B6C2CC]" />
+                    <span>30-Day Risk-Free Trial</span>
+                  </div>
+                  <p className="text-xs text-[#8B939C] leading-relaxed">
+                    100% money-back guarantee within 30 days. No restocking fees or deductions.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2">
+                  <div className="text-xs font-bold text-[#F5F7FA] flex items-center gap-1.5">
+                    <Icons.Radio className="w-4 h-4 text-[#B6C2CC]" />
+                    <span>GNSS Telemetry Precision</span>
+                  </div>
+                  <p className="text-xs text-[#8B939C] leading-relaxed">
+                    Live satellite tracking updated every 1,000ms with carrier coordination.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2">
+                  <div className="text-xs font-bold text-[#F5F7FA] flex items-center gap-1.5">
+                    <Icons.MessageSquare className="w-4 h-4 text-[#B6C2CC]" />
+                    <span>Dedicated Human Manager</span>
+                  </div>
+                  <p className="text-xs text-[#8B939C] leading-relaxed">
+                    Direct executive access to Marcus Vance via live chat, phone, and callback.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SUB-COMPONENT: ENTERPRISE DARK GPS SHIPMENT MAP
+    // Map background: #080B0E, Grid: #151A20, Lines: #1D242B, Route: #C6D0D8
+    // =========================================================================
+    function LiveGpsShipmentMap({ shipment, onTextServiceManager, onAskNova }) {
+      const [layerMode, setLayerMode] = useState('standard'); // 'standard' | 'satellite' | 'vector'
+      const [isSimulating, setIsSimulating] = useState(true);
+      const [selectedWaypoint, setSelectedWaypoint] = useState(null);
+      const [liveClock, setLiveClock] = useState('');
+      const [markerOffset, setMarkerOffset] = useState(0);
+
+      const tele = shipment?.mapTelemetry || {
+        originName: 'Dallas Logistics Center, TX',
+        destinationName: shipment?.destinationAddress || 'Customer Doorstep',
+        speed: '38 MPH',
+        heading: '214° SW',
+        distanceRemaining: '3.8 Miles',
+        etaExact: shipment?.estimatedDelivery || 'Today by 4:30 PM',
+        vehicleModel: 'FedEx E-Transit #14',
+        driverName: 'Carlos Martinez',
+        satellitesLocked: '14 GNSS Sats (±1.2m)',
+        trafficStatus: 'Optimal Flow',
+        waypoints: [
+          { id: 1, name: 'Dallas Logistics Center', type: 'Origin Hub', x: 120, y: 90, time: 'Sep 29, 10:14 AM', passed: true, note: 'Quality check verified' },
+          { id: 2, name: 'FedEx Regional Hub (Dallas)', type: 'Sorting Facility', x: 280, y: 145, time: 'Sep 29, 06:45 PM', passed: true, note: 'Departed sorting facility' },
+          { id: 3, name: 'Austin Central Facility', type: 'Destination Station', x: 490, y: 225, time: 'Sep 30, 08:30 AM', passed: true, note: 'Received at terminal' },
+          { id: 4, name: 'Austin Route #14', type: 'Courier Van', x: 670, y: 280, time: 'Live GPS Telemetry', passed: true, isLive: true, note: 'Courier on route' },
+          { id: 5, name: '742 Evergreen Terrace, Austin', type: 'Customer Doorstep', x: 830, y: 345, time: 'ETA Today 4:30 PM', passed: false, note: 'Customer doorstep' }
+        ]
+      };
+
+      useEffect(() => {
+        const update = () => {
+          const now = new Date();
+          setLiveClock(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }));
+        };
+        update();
+        const timer = setInterval(update, 1000);
+        return () => clearInterval(timer);
+      }, []);
+
+      useEffect(() => {
+        if (!isSimulating) return;
+        const interval = setInterval(() => {
+          setMarkerOffset(prev => (prev >= 6 ? -6 : prev + 1));
+        }, 800);
+        return () => clearInterval(interval);
+      }, [isSimulating]);
+
+      const routePathD = "M 120 90 Q 200 115, 280 145 T 490 225 T 670 280 T 830 345";
+
+      return (
+        <div className="saas-card overflow-hidden bg-[#101318] border border-[#242A31]">
+          
+          {/* Map Header Bar */}
+          <div className="p-4 sm:p-5 border-b border-[#242A31] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#101318]">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <Icons.Navigation className="w-4 h-4 text-[#F5F7FA]" />
+                <h3 className="text-sm font-bold text-[#F5F7FA] tracking-tight">
+                  Live GPS Tracking
+                </h3>
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-1.5 py-0.5 rounded">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  LIVE
+                </span>
+              </div>
+              <p className="text-xs text-[#8B939C]">
+                {tele.originName} → {tele.destinationName}
+              </p>
+            </div>
+
+            {/* Map Controls */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center bg-[#14181D] p-0.5 rounded-lg border border-[#242A31] text-xs">
+                <button
+                  onClick={() => setLayerMode('standard')}
+                  className={`px-2.5 py-1 rounded-md transition ${layerMode === 'standard' ? 'bg-[#242A31] text-[#F5F7FA] font-semibold' : 'text-[#8B939C] hover:text-[#F5F7FA]'}`}
+                >
+                  Standard
+                </button>
+                <button
+                  onClick={() => setLayerMode('satellite')}
+                  className={`px-2.5 py-1 rounded-md transition ${layerMode === 'satellite' ? 'bg-[#242A31] text-[#F5F7FA] font-semibold' : 'text-[#8B939C] hover:text-[#F5F7FA]'}`}
+                >
+                  Satellite
+                </button>
+                <button
+                  onClick={() => setLayerMode('vector')}
+                  className={`px-2.5 py-1 rounded-md transition ${layerMode === 'vector' ? 'bg-[#242A31] text-[#F5F7FA] font-semibold' : 'text-[#8B939C] hover:text-[#F5F7FA]'}`}
+                >
+                  Vector
+                </button>
+              </div>
+
+              <div className="text-xs text-[#8B939C] font-mono bg-[#14181D] px-2.5 py-1.5 rounded-lg border border-[#242A31]">
+                Sync: <strong className="text-[#F5F7FA]">{liveClock}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Dark Vector Map Canvas */}
+          <div className="relative w-full h-[380px] sm:h-[440px] bg-[#080B0E] overflow-hidden select-none">
+            
+            {/* Map Grid Pattern (Grid: #151A20) */}
+            <svg className="absolute inset-0 w-full h-full opacity-60 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="darkGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#151A20" strokeWidth="0.8" />
+                </pattern>
+                <pattern id="darkMajorGrid" width="160" height="160" patternUnits="userSpaceOnUse">
+                  <path d="M 160 0 L 0 0 0 160" fill="none" stroke="#1A2027" strokeWidth="1.2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="#080B0E" />
+              <rect width="100%" height="100%" fill="url(#darkGrid)" />
+              <rect width="100%" height="100%" fill="url(#darkMajorGrid)" />
+            </svg>
+
+            {/* Geography & Map Lines: #1D242B */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 960 440" preserveAspectRatio="none">
+              <path d="M 50 200 Q 300 180, 600 350 T 920 400" fill="none" stroke="#1D242B" strokeWidth="2.5" />
+              <path d="M 300 20 Q 450 150, 480 420" fill="none" stroke="#1D242B" strokeWidth="2" />
+              <path d="M 100 400 Q 500 300, 850 100" fill="none" stroke="#181E24" strokeWidth="1.5" />
+
+              {/* Major Highway */}
+              <path d="M 80 70 Q 260 120, 460 210 T 860 360" fill="none" stroke="#1D242B" strokeWidth="6" strokeLinecap="round" />
+              <path d="M 80 70 Q 260 120, 460 210 T 860 360" fill="none" stroke="#26313B" strokeWidth="2" strokeLinecap="round" />
+
+              {/* ACTIVE ROUTE: Route #C6D0D8, Glow #566673 */}
+              <path d={routePathD} fill="none" stroke="#566673" strokeWidth="7" strokeLinecap="round" opacity="0.4" />
+              <path d={routePathD} fill="none" stroke="#C6D0D8" strokeWidth="3.5" strokeLinecap="round" />
+              <path d={routePathD} fill="none" stroke="#080B0E" strokeWidth="1.5" strokeDasharray="5 5" strokeLinecap="round" />
+
+              {/* Waypoint Nodes (Markers: #E8EDF1) */}
+              {tele.waypoints.map((wp) => {
+                return (
+                  <g 
+                    key={wp.id} 
+                    className="cursor-pointer" 
+                    onClick={() => setSelectedWaypoint(wp)}
+                    style={{ pointerEvents: 'all' }}
+                  >
+                    {wp.isLive && (
+                      <circle cx={wp.x + markerOffset} cy={wp.y} r="16" fill="none" stroke="#566673" strokeWidth="1.5" opacity="0.8" />
+                    )}
+                    
+                    <circle 
+                      cx={wp.isLive ? wp.x + markerOffset : wp.x} 
+                      cy={wp.y} 
+                      r={wp.isLive ? 7 : 5} 
+                      fill={wp.passed ? "#E8EDF1" : "#14181D"} 
+                      stroke="#E8EDF1" 
+                      strokeWidth="2"
+                    />
+
+                    <text 
+                      x={wp.isLive ? wp.x + markerOffset : wp.x} 
+                      y={wp.y - 12} 
+                      textAnchor="middle" 
+                      fill="#E8EDF1" 
+                      fontSize="10" 
+                      fontWeight="600"
+                      fontFamily="Inter, sans-serif"
+                    >
+                      {wp.name}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Courier Van Overlay Marker */}
+            <div 
+              className="absolute pointer-events-none transition-transform duration-500"
+              style={{ 
+                left: `${(670 + markerOffset) / 960 * 100}%`, 
+                top: `${280 / 440 * 100}%`, 
+                transform: 'translate(-50%, -50%)' 
+              }}
+            >
+              <div className="bg-[#14181D] border border-[#242A31] text-[#F5F7FA] p-1.5 rounded-lg shadow-card flex items-center gap-1.5 text-[11px] font-mono whitespace-nowrap">
+                <Icons.Truck className="w-3.5 h-3.5 text-[#B6C2CC]" />
+                <span>FedEx #14</span>
+              </div>
+            </div>
+
+            {/* Bottom Floating Telemetry Overlay */}
+            <div className="absolute bottom-3 left-3 right-3 sm:right-auto bg-[#101318]/95 backdrop-blur-md border border-[#242A31] p-3.5 rounded-xl shadow-card flex items-center gap-4 flex-wrap text-xs">
+              <div>
+                <div className="text-[10px] text-[#8B939C] uppercase font-semibold">Speed</div>
+                <div className="font-mono font-bold text-[#F5F7FA]">{tele.speed}</div>
+              </div>
+              <div className="h-6 w-px bg-[#242A31]" />
+              <div>
+                <div className="text-[10px] text-[#8B939C] uppercase font-semibold">Heading</div>
+                <div className="font-mono font-bold text-[#F5F7FA]">{tele.heading}</div>
+              </div>
+              <div className="h-6 w-px bg-[#242A31]" />
+              <div>
+                <div className="text-[10px] text-[#8B939C] uppercase font-semibold">Remaining</div>
+                <div className="font-mono font-bold text-[#F5F7FA]">{tele.distanceRemaining}</div>
+              </div>
+              <div className="h-6 w-px bg-[#242A31]" />
+              <div>
+                <div className="text-[10px] text-[#8B939C] uppercase font-semibold">Driver</div>
+                <div className="font-medium text-[#F5F7FA]">{tele.driverName}</div>
+              </div>
+              <div className="h-6 w-px bg-[#242A31] hidden sm:block" />
+              <button
+                onClick={() => setIsSimulating(!isSimulating)}
+                className="ml-auto text-[11px] font-medium text-[#B6C2CC] hover:text-[#F5F7FA] border border-[#242A31] px-2 py-1 rounded bg-[#14181D]"
+              >
+                {isSimulating ? 'Pause Stream' : 'Resume'}
+              </button>
+            </div>
+
+            {/* Waypoint Popover */}
+            {selectedWaypoint && (
+              <div className="absolute top-3 right-3 bg-[#101318] border border-[#242A31] p-3.5 rounded-xl shadow-modal text-xs space-y-1.5 max-w-xs animate-fadeIn z-20">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[#F5F7FA]">{selectedWaypoint.name}</span>
+                  <button onClick={() => setSelectedWaypoint(null)} className="text-[#8B939C] hover:text-[#F5F7FA]">
+                    <Icons.X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="text-[11px] text-[#8B939C] font-mono">{selectedWaypoint.type} • {selectedWaypoint.time}</div>
+                <p className="text-xs text-[#E8EBEF] pt-1 border-t border-[#242A31]">{selectedWaypoint.note}</p>
+              </div>
+            )}
+
+          </div>
+
+          {/* Telemetry Metric Cards Footer */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-[#242A31] border-t border-[#242A31] bg-[#101318] text-xs">
+            <div className="p-3.5 space-y-0.5">
+              <div className="text-[10px] uppercase font-semibold text-[#8B939C]">Estimated Arrival</div>
+              <div className="font-bold text-[#F5F7FA]">{tele.etaExact}</div>
+            </div>
+            <div className="p-3.5 space-y-0.5">
+              <div className="text-[10px] uppercase font-semibold text-[#8B939C]">Vehicle Fleet ID</div>
+              <div className="font-mono font-medium text-[#F5F7FA]">{tele.vehicleModel}</div>
+            </div>
+            <div className="p-3.5 space-y-0.5">
+              <div className="text-[10px] uppercase font-semibold text-[#8B939C]">GNSS Precision</div>
+              <div className="font-mono font-medium text-[#F5F7FA]">{tele.satellitesLocked}</div>
+            </div>
+            <div className="p-3.5 space-y-0.5">
+              <div className="text-[10px] uppercase font-semibold text-[#8B939C]">Corridor Traffic</div>
+              <div className="font-medium text-[#F5F7FA]">{tele.trafficStatus}</div>
+            </div>
+          </div>
+
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SECTION 2: SERVICE MANAGER DESK PLATFORM (MARCUS VANCE)
+    // =========================================================================
+    function ServiceManagerDeskPlatform({ customer, ticketRef, initialText, onOpenAuth }) {
+      const [messages, setMessages] = useState([
+        { id: 1, sender: 'manager', text: `Hello ${customer ? customer.firstName : 'there'}! I am Marcus Vance, your assigned Senior Service Manager. How can I assist you with your active shipment, warranty replacement, or billing today?`, timestamp: 'Just now' }
+      ]);
+      const [inputText, setInputText] = useState(initialText || '');
+      const [isCalling, setIsCalling] = useState(false);
+      const [callDuration, setCallDuration] = useState(0);
+      const [callbackSuccess, setCallbackSuccess] = useState(false);
+
+      useEffect(() => {
+        if (initialText) setInputText(initialText);
+      }, [initialText]);
+
+      useEffect(() => {
+        let timer;
+        if (isCalling) {
+          timer = setInterval(() => setCallDuration(d => d + 1), 1000);
+        } else {
+          setCallDuration(0);
+        }
+        return () => clearInterval(timer);
+      }, [isCalling]);
+
+      const handleSendMessage = (e) => {
+        e.preventDefault();
+        if (!inputText.trim()) return;
+
+        const userMsg = { id: Date.now(), sender: 'user', text: inputText, timestamp: 'Just now' };
+        setMessages(prev => [...prev, userMsg]);
+        const submitted = inputText;
+        setInputText('');
+
+        setTimeout(() => {
+          let reply = "Thank you for the update. I have pulled up your account records and verified the details on the dispatch terminal. Let me handle this right away for you.";
+          if (submitted.toLowerCase().includes('track') || submitted.toLowerCase().includes('where') || submitted.toLowerCase().includes('shipment')) {
+            reply = "I've checked the live courier telemetry. Shipment AT-9842 is currently 3.8 miles away with driver Carlos Martinez (FedEx Van #14) and remains on schedule for delivery today by 4:30 PM EST.";
+          } else if (submitted.toLowerCase().includes('refund') || submitted.toLowerCase().includes('return') || submitted.toLowerCase().includes('money')) {
+            reply = "Under our 30-day Risk-Free Guarantee, your order ORD-2026-9842 is 100% eligible for an immediate full refund. I have generated a prepaid return label on your account hub.";
+          } else if (submitted.toLowerCase().includes('warranty') || submitted.toLowerCase().includes('broken') || submitted.toLowerCase().includes('replace')) {
+            reply = "Your hardware warranty is active and valid until August 2028. I can dispatch an advance replacement unit to your doorstep immediately without requiring you to return the original first.";
+          }
+          setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'manager', text: reply, timestamp: 'Just now' }]);
+        }, 800);
+      };
+
+      const formatCallTime = (secs) => {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      };
+
+      return (
+        <div className="space-y-6 animate-fadeIn">
+          
+          {/* Executive Header Card */}
+          <div className="saas-card p-6 bg-[#101318] flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-[#14181D] border border-[#242A31] text-[#F5F7FA] font-bold text-lg flex items-center justify-center shrink-0">
+                MV
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-[#F5F7FA]">Marcus Vance</h2>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Available on Desk
+                  </span>
+                </div>
+                <div className="text-xs text-[#8B939C]">
+                  Senior Executive Service Manager • Direct Extension: <strong className="text-[#E8EBEF] font-mono">401</strong>
+                </div>
+                <div className="text-xs text-[#8B939C]">
+                  Ticket Ref: <strong className="text-[#E8EBEF] font-mono">{ticketRef}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <button
+                onClick={() => setIsCalling(true)}
+                className="saas-btn-primary text-xs px-3.5 py-2 flex items-center gap-2"
+              >
+                <Icons.Phone className="w-3.5 h-3.5" />
+                <span>Call Executive Desk</span>
+              </button>
+              <button
+                onClick={() => { setCallbackSuccess(true); setTimeout(() => setCallbackSuccess(false), 3000); }}
+                className="saas-btn-secondary text-xs px-3.5 py-2"
+              >
+                {callbackSuccess ? 'Callback Scheduled!' : 'Request 10-Min Callback'}
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Chat Workspace */}
+          <div className="saas-card bg-[#101318] overflow-hidden flex flex-col h-[520px]">
+            <div className="p-4 border-b border-[#242A31] flex items-center justify-between bg-[#080A0D]">
+              <div className="flex items-center gap-2 text-xs">
+                <Icons.MessageSquare className="w-4 h-4 text-[#8B939C]" />
+                <span className="font-semibold text-[#F5F7FA]">Direct Service Communication Terminal</span>
+              </div>
+              <span className="text-[11px] text-[#8B939C] font-mono">End-to-End Encrypted</span>
+            </div>
+
+            {/* Messages Thread */}
+            <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#101318]">
+              {messages.map(m => (
+                <div key={m.id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-md p-3.5 rounded-xl text-xs space-y-1 ${
+                    m.sender === 'user'
+                      ? 'bg-[#F1F3F5] text-[#090B0D] font-medium'
+                      : 'bg-[#14181D] text-[#F5F7FA] border border-[#242A31]'
+                  }`}>
+                    <div className="flex items-center justify-between gap-4 text-[10px] opacity-75">
+                      <span className="font-semibold">{m.sender === 'user' ? (customer?.firstName || 'You') : 'Marcus Vance'}</span>
+                      <span className="font-mono">{m.timestamp}</span>
+                    </div>
+                    <p className="leading-relaxed">{m.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input Form */}
+            <form onSubmit={handleSendMessage} className="p-3 border-t border-[#242A31] bg-[#080A0D] flex items-center gap-2">
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Type your question or request to Marcus Vance..."
+                className="flex-1 saas-input px-3.5 py-2 text-xs text-[#F5F7FA]"
+              />
+              <button
+                type="submit"
+                className="saas-btn-primary px-4 py-2 text-xs flex items-center gap-1.5"
+              >
+                <span>Send</span>
+                <Icons.Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </div>
+
+          {/* Voice Call Modal */}
+          {isCalling && (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+              <div className="saas-card p-6 bg-[#101318] border border-[#242A31] max-w-sm w-full text-center space-y-4 shadow-modal">
+                <div className="w-16 h-16 rounded-full bg-[#14181D] border border-[#242A31] text-[#F5F7FA] font-bold text-xl flex items-center justify-center mx-auto shadow-card">
+                  MV
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#F5F7FA]">Marcus Vance</h3>
+                  <div className="text-xs text-[#8B939C]">Senior Service Manager Desk</div>
+                  <div className="text-xs font-mono font-bold text-[#F5F7FA] mt-2">{formatCallTime(callDuration)}</div>
+                </div>
+
+                <div className="flex items-center justify-center gap-1 py-3">
+                  {[12, 24, 38, 20, 42, 16, 30, 45, 22, 14].map((h, i) => (
+                    <div 
+                      key={i} 
+                      className="w-1 bg-[#B6C2CC] rounded-full transition-all duration-150" 
+                      style={{ height: `${h}px` }} 
+                    />
+                  ))}
+                </div>
+
+                <div className="text-xs text-[#8B939C]">Channel: HD Enterprise VoIP Secure</div>
+
+                <button
+                  onClick={() => setIsCalling(false)}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-medium text-xs py-2.5 rounded-lg transition"
+                >
+                  End Call
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SECTION 3: CUSTOMER ACCOUNT & REGISTRATION HUB
+    // =========================================================================
+    function CustomerLoginPlatform({ customer, onLoginSuccess, onRegisterSuccess, onLogout, onGoToTracker, onTextServiceManager }) {
+      const [regFirst, setRegFirst] = useState('');
+      const [regLast, setRegLast] = useState('');
+      const [regPhone, setRegPhone] = useState('');
+      const [regEmail, setRegEmail] = useState('');
+
+      const handleDemoLogin = () => {
+        onLoginSuccess(DEFAULT_CUSTOMER);
+      };
+
+      const handleRegisterSubmit = (e) => {
+        e.preventDefault();
+        const newProfile = {
+          id: `usr_${Math.floor(100000 + Math.random() * 900000)}`,
+          firstName: regFirst || 'Customer',
+          surname: regLast || 'User',
+          phone: regPhone || '+1 (555) 000-0000',
+          email: regEmail || 'user@example.com',
+          membershipTier: 'Gold',
+          registeredAt: new Date().toISOString(),
+          registeredDevices: [
+            {
+              serialNumber: 'SN-PLS-9901',
+              modelName: 'Aura Studio ANC Headphones',
+              category: 'Audio',
+              purchaseDate: 'Today',
+              warrantyStatus: 'Active',
+              warrantyExpires: '2-Year Standard Protection',
+              healthStatus: 'Optimal',
+              lastSync: 'Just Now'
+            }
+          ]
+        };
+        onRegisterSuccess(newProfile);
+      };
+
+      if (!customer) {
+        return (
+          <div className="saas-card p-6 sm:p-8 bg-[#101318] max-w-lg mx-auto space-y-6 animate-fadeIn">
+            <div className="text-center space-y-1">
+              <div className="w-10 h-10 rounded-lg bg-[#14181D] border border-[#242A31] text-white font-bold text-base flex items-center justify-center mx-auto mb-3">
+                P
+              </div>
+              <h2 className="text-xl font-bold text-[#F5F7FA]">Customer Account Portal</h2>
+              <p className="text-xs text-[#8B939C]">Sign in with your verified credentials or register your PulseCX account.</p>
+            </div>
+
+            <form onSubmit={handleRegisterSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-[#8B939C] block mb-1">First Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={regFirst}
+                    onChange={(e) => setRegFirst(e.target.value)}
+                    placeholder="Alex"
+                    className="w-full saas-input px-3 py-2 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-[#8B939C] block mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={regLast}
+                    onChange={(e) => setRegLast(e.target.value)}
+                    placeholder="Mercer"
+                    className="w-full saas-input px-3 py-2 text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-[#8B939C] block mb-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  placeholder="alex.mercer@example.com"
+                  className="w-full saas-input px-3 py-2 text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-[#8B939C] block mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  required
+                  value={regPhone}
+                  onChange={(e) => setRegPhone(e.target.value)}
+                  placeholder="+1 (555) 234-8901"
+                  className="w-full saas-input px-3 py-2 text-xs"
+                />
+              </div>
+
+              <button type="submit" className="w-full saas-btn-primary py-2.5 text-xs font-semibold">
+                Create & Access Account
+              </button>
+            </form>
+
+            <div className="pt-4 border-t border-[#242A31] text-center space-y-2">
+              <div className="text-xs text-[#8B939C]">Want to test immediately?</div>
+              <button
+                onClick={handleDemoLogin}
+                className="w-full saas-btn-secondary py-2 text-xs font-medium"
+              >
+                Sign In as Demo Customer (Alex Mercer - Gold)
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="space-y-6 animate-fadeIn">
+          
+          <div className="saas-card p-6 bg-[#101318] flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-[#14181D] border border-[#242A31] text-[#F5F7FA] font-bold text-lg flex items-center justify-center">
+                {customer.firstName[0]}
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-[#F5F7FA]">{customer.firstName} {customer.surname}</h2>
+                  <span className="text-[10px] font-semibold text-[#E8EBEF] bg-[#14181D] border border-[#242A31] px-2 py-0.5 rounded">
+                    Tier: {customer.membershipTier}
+                  </span>
+                </div>
+                <div className="text-xs text-[#8B939C] font-mono">{customer.email} • {customer.phone}</div>
+                <div className="text-xs text-[#8B939C]">Customer ID: <strong className="text-[#E8EBEF] font-mono">{customer.id}</strong></div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button onClick={onGoToTracker} className="saas-btn-primary text-xs px-3.5 py-2">
+                View Active Shipments
+              </button>
+              <button onClick={onLogout} className="saas-btn-secondary text-xs px-3.5 py-2 text-red-400 hover:text-red-300">
+                Sign Out
+              </button>
+            </div>
+          </div>
+
+          <div className="saas-card p-6 bg-[#101318] space-y-6">
+            <h3 className="text-sm font-bold text-[#F5F7FA]">Active Registered Hardware Assets</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {customer.registeredDevices.map((dev, idx) => (
+                <div key={idx} className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#F5F7FA]">{dev.modelName}</span>
+                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded">
+                      ● {dev.warrantyStatus}
+                    </span>
+                  </div>
+                  <div className="text-xs text-[#8B939C] space-y-1">
+                    <div>Serial Number: <strong className="text-[#E8EBEF] font-mono">{dev.serialNumber}</strong></div>
+                    <div>Warranty Coverage: <strong className="text-[#E8EBEF]">{dev.warrantyExpires}</strong></div>
+                    <div>Device Health: <strong className="text-[#E8EBEF]">{dev.healthStatus}</strong></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SECTION 4: PAYMENT & REFUND TRACKER PLATFORM
+    // =========================================================================
+    function PaymentTrackerPlatform({ customer, onTextServiceManager, onOpenAuth }) {
+      const [receiptModal, setReceiptModal] = useState(false);
+
+      const TRANSACTIONS = [
+        { id: 'INV-2026-9842', order: 'ORD-2026-9842', item: 'Aura Studio ANC Headphones', amount: '$349.00', status: 'Paid / In Transit', date: 'Sep 29, 2026', method: 'MasterCard •••• 4019' },
+        { id: 'INV-2026-8821', order: 'ORD-2026-8821', item: 'Aura Pulse Smartwatch Titanium', amount: '$499.00', status: 'Paid & Delivered', date: 'Aug 15, 2026', method: 'Visa •••• 8821' },
+      ];
+
+      return (
+        <div className="space-y-6 animate-fadeIn">
+          
+          <div className="saas-card p-6 bg-[#101318] space-y-1.5">
+            <h2 className="text-2xl font-bold text-[#F5F7FA]">Payment & Refund Telemetry</h2>
+            <p className="text-xs text-[#8B939C]">
+              Transparent transaction auditing, automated return shipping labels, and 100% money-back guarantee tracking.
+            </p>
+          </div>
+
+          <div className="saas-card p-6 bg-[#101318] space-y-4">
+            <h3 className="text-sm font-bold text-[#F5F7FA]">Billing History & Invoices</h3>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-[#242A31] text-[#8B939C]">
+                    <th className="py-2.5 font-semibold">Invoice #</th>
+                    <th className="py-2.5 font-semibold">Order Description</th>
+                    <th className="py-2.5 font-semibold">Amount</th>
+                    <th className="py-2.5 font-semibold">Payment Method</th>
+                    <th className="py-2.5 font-semibold">Status</th>
+                    <th className="py-2.5 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#242A31]">
+                  {TRANSACTIONS.map((tx) => (
+                    <tr key={tx.id} className="hover:bg-[#14181D] transition">
+                      <td className="py-3 font-mono font-medium text-[#F5F7FA]">{tx.id}</td>
+                      <td className="py-3 font-medium text-[#F5F7FA]">{tx.item}</td>
+                      <td className="py-3 font-bold text-[#F5F7FA]">{tx.amount}</td>
+                      <td className="py-3 text-[#8B939C]">{tx.method}</td>
+                      <td className="py-3">
+                        <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded">
+                          ● {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right">
+                        <button
+                          onClick={() => setReceiptModal(true)}
+                          className="saas-btn-secondary text-[11px] px-2.5 py-1"
+                        >
+                          View Receipt
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Receipt Modal */}
+          {receiptModal && (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+              <div className="saas-card p-6 bg-[#101318] border border-[#242A31] max-w-md w-full space-y-4 shadow-modal">
+                <div className="flex items-center justify-between border-b border-[#242A31] pb-3">
+                  <div className="font-bold text-sm text-[#F5F7FA]">Tax Invoice #INV-2026-9842</div>
+                  <button onClick={() => setReceiptModal(false)} className="text-[#8B939C] hover:text-[#F5F7FA]">
+                    <Icons.X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="text-xs text-[#8B939C] space-y-2">
+                  <div className="flex justify-between">
+                    <span>Item:</span>
+                    <strong className="text-[#F5F7FA]">Aura Studio ANC Headphones</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <strong className="text-[#F5F7FA]">$349.00</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Shipping:</span>
+                    <strong className="text-[#F5F7FA]">$0.00 (Free FedEx Express)</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Tax (0%):</span>
+                    <strong className="text-[#F5F7FA]">$0.00</strong>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-[#242A31] text-sm">
+                    <span>Total Paid:</span>
+                    <strong className="text-[#F5F7FA]">$349.00</strong>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setReceiptModal(false)}
+                  className="w-full saas-btn-primary py-2 text-xs"
+                >
+                  Close Receipt
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SECTION 5: SERVICE POLICIES SECTION
+    // =========================================================================
+    function PolicySection({ onAskNova, onTextServiceManager }) {
+      return (
+        <div className="saas-card p-6 sm:p-8 bg-[#101318] space-y-6 animate-fadeIn">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-[#F5F7FA]">PulseCX Customer Charter & Policies</h2>
+            <p className="text-xs text-[#8B939C]">Legal guarantees, carrier SLA benchmarks, and dispute resolution terms.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2">
+              <h3 className="text-sm font-bold text-[#F5F7FA]">30-Day Risk-Free Return Guarantee</h3>
+              <p className="text-xs text-[#8B939C] leading-relaxed">
+                All hardware orders purchased through PulseCX include an unconditional 30-day trial period. Prepaid return shipping labels are generated automatically on demand.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2">
+              <h3 className="text-sm font-bold text-[#F5F7FA]">Real-Time GPS Telemetry Guarantee</h3>
+              <p className="text-xs text-[#8B939C] leading-relaxed">
+                Courier telematics synchronize with GNSS satellite feeds to provide exact doorstep arrival predictions within a ±15-minute margin.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2">
+              <h3 className="text-sm font-bold text-[#F5F7FA]">Executive Desk Escalation</h3>
+              <p className="text-xs text-[#8B939C] leading-relaxed">
+                Senior Service Manager Marcus Vance is personally assigned to monitor freight integrity, resolve delays, and authorize warranty exchanges.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#14181D] border border-[#242A31] space-y-2">
+              <h3 className="text-sm font-bold text-[#F5F7FA]">Hardware Warranty Protection</h3>
+              <p className="text-xs text-[#8B939C] leading-relaxed">
+                1-to-2 year full hardware warranty against component faults. Advanced doorstep replacement dispatch authorized without delay.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SECTION 6: NOVA AI ASSISTANT WIDGET
+    // Floating button: background #F1F3F5, text #090B0D, 10px radius, subtle shadow
+    // =========================================================================
+    function NovaAssistantWidget({ customer, externalPrompt, onClearExternalPrompt, onSwitchToManager, onOpenAuth }) {
+      const [isOpen, setIsOpen] = useState(false);
+      const [chatMessages, setChatMessages] = useState([
+        { id: 1, sender: 'nova', text: "Hello! I am Nova, your AI assistant. Ask me about shipment tracking, warranty coverage, or return labels.", timestamp: 'Just now' }
+      ]);
+      const [chatInput, setChatInput] = useState('');
+
+      useEffect(() => {
+        if (externalPrompt) {
+          setIsOpen(true);
+          handleSendPrompt(externalPrompt);
+          onClearExternalPrompt();
+        }
+      }, [externalPrompt]);
+
+      const handleSendPrompt = (text) => {
+        if (!text.trim()) return;
+        const userMsg = { id: Date.now(), sender: 'user', text, timestamp: 'Just now' };
+        setChatMessages(prev => [...prev, userMsg]);
+        setChatInput('');
+
+        setTimeout(() => {
+          let botReply = "I have queried the logistics database. Your shipment AT-9842 is currently in transit with FedEx and will arrive today by 4:30 PM EST.";
+          if (text.toLowerCase().includes('return') || text.toLowerCase().includes('refund')) {
+            botReply = "All PulseCX purchases include a 30-day 100% money-back guarantee. You can print a free prepaid shipping label directly from your account hub.";
+          } else if (text.toLowerCase().includes('manager') || text.toLowerCase().includes('human') || text.toLowerCase().includes('marcus')) {
+            botReply = "I can transfer this conversation directly to Marcus Vance (Senior Service Manager Desk). Click below to connect.";
+          }
+          setChatMessages(prev => [...prev, { id: Date.now() + 1, sender: 'nova', text: botReply, timestamp: 'Just now' }]);
+        }, 700);
+      };
+
+      return (
+        <>
+          {/* Floating Pill Button (#F1F3F5 background, #090B0D text, 10px rounded, no emoji) */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="fixed bottom-5 right-5 z-40 bg-[#F1F3F5] text-[#090B0D] hover:bg-white px-4 py-2.5 rounded-[10px] shadow-dropdown flex items-center gap-2 text-xs font-semibold hover:scale-105 transition-all"
+            aria-label="Open Nova Assistant"
+          >
+            <Icons.Sparkles className="w-4 h-4 text-[#090B0D]" />
+            <span>Nova Assistant</span>
+          </button>
+
+          {/* Assistant Modal Window (Dark Mode) */}
+          {isOpen && (
+            <div className="fixed bottom-20 right-5 w-80 sm:w-96 saas-card bg-[#101318] border border-[#242A31] shadow-modal z-50 flex flex-col h-[480px] overflow-hidden animate-fadeIn">
+              <div className="p-3.5 border-b border-[#242A31] flex items-center justify-between bg-[#080A0D]">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-[#14181D] border border-[#242A31] text-[#F5F7FA] flex items-center justify-center">
+                    <Icons.Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-xs font-bold text-[#F5F7FA]">Nova AI Assistant</span>
+                </div>
+                <button onClick={() => setIsOpen(false)} className="text-[#8B939C] hover:text-[#F5F7FA]">
+                  <Icons.X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Chat Thread */}
+              <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#101318]">
+                {chatMessages.map(m => (
+                  <div key={m.id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] p-3 rounded-xl text-xs space-y-1 ${
+                      m.sender === 'user'
+                        ? 'bg-[#F1F3F5] text-[#090B0D] font-medium'
+                        : 'bg-[#14181D] text-[#F5F7FA] border border-[#242A31]'
+                    }`}>
+                      <p className="leading-relaxed">{m.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Actions */}
+              <div className="p-2 border-t border-[#242A31] bg-[#080A0D] flex gap-1.5 overflow-x-auto">
+                <button
+                  onClick={() => handleSendPrompt("Where is my shipment AT-9842?")}
+                  className="text-[10px] font-medium text-[#8B939C] bg-[#14181D] border border-[#242A31] px-2 py-1 rounded shrink-0 hover:text-[#F5F7FA] hover:bg-[#171B20]"
+                >
+                  Track AT-9842
+                </button>
+                <button
+                  onClick={() => handleSendPrompt("How do I return a product?")}
+                  className="text-[10px] font-medium text-[#8B939C] bg-[#14181D] border border-[#242A31] px-2 py-1 rounded shrink-0 hover:text-[#F5F7FA] hover:bg-[#171B20]"
+                >
+                  Return Policy
+                </button>
+                <button
+                  onClick={() => onSwitchToManager("Assistance from Nova AI")}
+                  className="text-[10px] font-medium text-[#8B939C] bg-[#14181D] border border-[#242A31] px-2 py-1 rounded shrink-0 hover:text-[#F5F7FA] hover:bg-[#171B20]"
+                >
+                  Talk to Marcus
+                </button>
+              </div>
+
+              {/* Input Form */}
+              <form 
+                onSubmit={(e) => { e.preventDefault(); handleSendPrompt(chatInput); }}
+                className="p-3 border-t border-[#242A31] flex items-center gap-2 bg-[#080A0D]"
+              >
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask Nova a question..."
+                  className="flex-1 saas-input px-3 py-1.5 text-xs text-[#F5F7FA]"
+                />
+                <button type="submit" className="saas-btn-primary p-2">
+                  <Icons.Send className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    // Render React Application to Root
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
